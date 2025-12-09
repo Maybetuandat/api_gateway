@@ -1,0 +1,11 @@
+server:
+  port: 9998
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: entity-service
+          uri: http://localhost:8080
+          predicates:
+            - Path=/**
