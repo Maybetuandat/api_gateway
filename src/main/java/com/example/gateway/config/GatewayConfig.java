@@ -22,31 +22,30 @@ public class GatewayConfig {
         this.authenticationFilter = authenticationFilter;
     }
 
-    @Bean
-    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
-        return builder.routes()
-                .route("auth-service", r -> r
-                        .path("/api/auth/**")
-                        .uri("http://localhost:8081"))
-                
-                .route("cms-service-protected", r -> r
-                        .path("/api/**")
-                        .filters(f -> f.filter(authenticationFilter.apply(new AuthenticationFilter.Config())))
-                        .uri("http://localhost:8080"))
-                
-                .route("websocket-service", r -> r
-                        .path("/ws/**")
-                        .uri("ws://localhost:8080"))
-                
-                .build();
-    }
-
+   @Bean
+public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+    return builder.routes()
+            .route("auth-service", r -> r
+                    .path("/api/auth/**")
+                    .uri("http://localhost:8081"))
+            
+            .route("cms-service-protected", r -> r
+                    .path("/api/**")
+                    .and()
+                    .not(p -> p.path("/api/auth/**")) 
+                    .filters(f -> f
+                        .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
+                        .preserveHostHeader()  
+                    )
+                    .uri("http://localhost:8080"))
+            
+            .build();
+}
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.setAllowedOrigins(Arrays.asList(
-                "http://localhost:5173",
-                "http://localhost:3000"
+                "http://localhost:*"
         ));
         corsConfig.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"

@@ -6,10 +6,11 @@ spring:
     name: gateway
 
 app:
-  jwtSecret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  jwtSecret: labplatformSecretKey123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 
 logging:
   level:
-    org.springframework.cloud.gateway: INFO
     org.springframework.web.cors: DEBUG
     com.example.gateway: DEBUG
+    com.example.gateway.security: DEBUG
+    org.springframework.cloud.gateway: DEBUG
