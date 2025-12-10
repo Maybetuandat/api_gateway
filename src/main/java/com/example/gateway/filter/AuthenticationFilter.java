@@ -39,6 +39,16 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
             logger.info("Authorization header: {}", authHeader);
             
+
+            // check jwt token in query parameter if not found in header
+            if (authHeader == null && request.getQueryParams().containsKey("token")) {
+                String tokenParam = request.getQueryParams().getFirst("token");
+                if (tokenParam != null && !tokenParam.isEmpty()) {
+                    authHeader = "Bearer " + tokenParam;
+                }
+            }
+
+
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 logger.error("Invalid authorization header format");
                 return onError(exchange, "Invalid authorization header", HttpStatus.UNAUTHORIZED);

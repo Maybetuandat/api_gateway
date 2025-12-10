@@ -1,3 +1,3 @@
 git add .
-git commit -m "update request filter and forward this request to authentication service"
+git commit -m "update the method for get jwt token and migrate for websocket"
 git push origin main

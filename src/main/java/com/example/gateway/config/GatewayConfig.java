@@ -38,7 +38,13 @@ public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
                         .preserveHostHeader()  
                     )
                     .uri("http://localhost:8080"))
-            
+            .route("websocket-service", r -> r
+                    .path("/ws/**") 
+                    .filters(f -> f
+                        .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
+                        .preserveHostHeader() 
+                    )
+                    .uri("ws://localhost:8082"))
             .build();
 }
     @Bean
