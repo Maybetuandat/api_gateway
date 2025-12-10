@@ -44,9 +44,7 @@ public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOrigins(Arrays.asList(
-                "http://localhost:*"
-        ));
+        corsConfig.setAllowedOriginPatterns(Arrays.asList("http://localhost:*"));
         corsConfig.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"
         ));
