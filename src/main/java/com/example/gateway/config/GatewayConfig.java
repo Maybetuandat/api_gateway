@@ -25,9 +25,9 @@ public class GatewayConfig {
    @Bean
 public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
     return builder.routes()
-            .route("auth-service", r -> r
+            .route("auth", r -> r
                     .path("/api/auth/**")
-                    .uri("http://localhost:8081"))
+                    .uri("http://localhost:8080"))
             
             .route("cms-service-protected", r -> r
                     .path("/api/**")
