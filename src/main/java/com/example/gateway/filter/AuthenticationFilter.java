@@ -31,23 +31,35 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             
             logger.info("=== Processing request: {}", path);
 
-            if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-                logger.error("Missing authorization header for path: {}", path);
-                return onError(exchange, "Missing authorization header", HttpStatus.UNAUTHORIZED);
-            }
+            // Kiểm tra nếu là WebSocket request
+            HttpHeaders headers = request.getHeaders();
+            boolean isWebSocket = headers.getUpgrade() != null && 
+                                 "websocket".equalsIgnoreCase(headers.getFirst(HttpHeaders.UPGRADE));
 
-            String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-            logger.info("Authorization header: {}", authHeader);
-            
+            String authHeader = null;
 
-            // check jwt token in query parameter if not found in header
-            if (authHeader == null && request.getQueryParams().containsKey("token")) {
+            if (isWebSocket) {
+                // Với WebSocket, lấy token từ query parameter
+                logger.info("🔌 WebSocket request detected");
                 String tokenParam = request.getQueryParams().getFirst("token");
+                
                 if (tokenParam != null && !tokenParam.isEmpty()) {
                     authHeader = "Bearer " + tokenParam;
+                    logger.info("Token extracted from query parameter");
+                } else {
+                    logger.error("Missing token in query parameter for WebSocket path: {}", path);
+                    return onError(exchange, "Missing token in query parameter", HttpStatus.UNAUTHORIZED);
                 }
-            }
+            } else {
+                // Với HTTP request thông thường, lấy từ Authorization header
+                if (!headers.containsKey(HttpHeaders.AUTHORIZATION)) {
+                    logger.error("Missing authorization header for path: {}", path);
+                    return onError(exchange, "Missing authorization header", HttpStatus.UNAUTHORIZED);
+                }
 
+                authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
+                logger.info("Authorization header: {}", authHeader);
+            }
 
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 logger.error("Invalid authorization header format");

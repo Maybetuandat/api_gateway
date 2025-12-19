@@ -22,31 +22,27 @@ public class GatewayConfig {
         this.authenticationFilter = authenticationFilter;
     }
 
-   @Bean
-public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
-    return builder.routes()
-            .route("auth", r -> r
-                    .path("/api/auth/**")
-                    .uri("http://localhost:8080"))
-            
-            .route("cms-service-protected", r -> r
-                    .path("/api/**")
-                    .and()
-                    .not(p -> p.path("/api/auth/**")) 
-                    .filters(f -> f
-                        .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
-                        .preserveHostHeader()  
-                    )
-                    .uri("http://localhost:8080"))
-            .route("websocket-service", r -> r
-                    .path("/ws/**") 
-                    .filters(f -> f
-                        .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
-                        .preserveHostHeader() 
-                    )
-                    .uri("ws://localhost:8082"))
-            .build();
-}
+    @Bean
+    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+        return builder.routes()
+                .route("infra-service-ws", r -> r
+                        .path("/ws/**") 
+                        .filters(f -> f
+                            .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
+                            .rewritePath("/ws/(?<segment>.*)", "/${segment}") 
+                            .preserveHostHeader()
+                        )
+                        .uri("ws://localhost:8081")) 
+                .route("auth", r -> r
+                        .path("/api/auth/**")
+                        .uri("http://localhost:8080"))
+
+                .route("cms-service-protected", r -> r
+                        .path("/api/**")
+                        .filters(f -> f.filter(authenticationFilter.apply(new AuthenticationFilter.Config())))
+                        .uri("http://localhost:8080"))
+                .build();
+    }
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
