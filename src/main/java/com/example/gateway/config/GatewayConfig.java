@@ -1,4 +1,3 @@
-
 package com.example.gateway.config;
 
 import com.example.gateway.filter.AuthenticationFilter;
@@ -25,14 +24,13 @@ public class GatewayConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
+                // ✅ WebSocket routes - GIỮ NGUYÊN path, không rewrite
                 .route("infra-service-ws", r -> r
                         .path("/ws/**") 
-                        .filters(f -> f
-                            .filter(authenticationFilter.apply(new AuthenticationFilter.Config()))
-                            .rewritePath("/ws/(?<segment>.*)", "/${segment}") 
-                            .preserveHostHeader()
-                        )
-                        .uri("ws://localhost:8081")) 
+                        .filters(f -> f.filter(authenticationFilter.apply(new AuthenticationFilter.Config())))
+                        .uri("ws://localhost:8081"))
+                
+                // HTTP routes
                 .route("auth", r -> r
                         .path("/api/auth/**")
                         .uri("http://localhost:8080"))
@@ -43,6 +41,7 @@ public class GatewayConfig {
                         .uri("http://localhost:8080"))
                 .build();
     }
+    
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
